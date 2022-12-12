@@ -11,13 +11,13 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text TopScoreText;
     public GameObject GameOverText;
-    
-    private bool m_Started = false;
-    private int m_Points;
-    
-    private bool m_GameOver = false;
 
+    private bool m_Started = false;
+    public int m_Points;
+
+    private bool m_GameOver = false;
     
     // Start is called before the first frame update
     void Start()
@@ -36,6 +36,10 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        ScoreText.text = "Score " + PersistanceManager.Instance.playerName + " : " + m_Points;
+        PersistanceManager.Instance.LoadTopScore();
+        TopScoreText.text = "Top score: " + PersistanceManager.Instance.topScorerName + " : " + PersistanceManager.Instance.topScore;
     }
 
     private void Update()
@@ -65,12 +69,24 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        //ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = "Score " + PersistanceManager.Instance.playerName + " : " + m_Points;
+
+        //In case the current player has beat the high score, top score text needs to be updated
+        if (m_Points > PersistanceManager.Instance.topScore)
+        {
+            TopScoreText.text = "Top score: " + PersistanceManager.Instance.playerName + " : " + m_Points;
+        }
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        if (m_Points > PersistanceManager.Instance.topScore)
+        {
+            PersistanceManager.Instance.SaveTopScore(m_Points);
+        }
     }
 }
